@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>docker_exporter</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Docker.fs" />
+    <Compile Include="SocketHttpClient.fs" />
+    <Compile Include="WeatherForecast.fs" />
+    <Compile Include="Controllers/WeatherForecastController.fs" />
+    <Compile Include="Controllers/ExporterController.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Data" Version="6.4.0" />
+  </ItemGroup>
+</Project>
