@@ -13,7 +13,7 @@ type ConnectCallbackDelegate = delegate of SocketsHttpConnectionContext * Thread
 
 [<ApiController>]
 [<Route("[controller]")>]
-type ExporterController (logger : ILogger<ExporterController>) =
+type MetricsController (logger : ILogger<MetricsController>) =
     inherit ControllerBase()
 
     /// To calculate the values shown by the stats command of the docker cli tool the following formulas can be used:

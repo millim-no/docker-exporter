@@ -8,7 +8,7 @@
     <Compile Include="SocketHttpClient.fs" />
     <Compile Include="WeatherForecast.fs" />
     <Compile Include="Controllers/WeatherForecastController.fs" />
-    <Compile Include="Controllers/ExporterController.fs" />
+    <Compile Include="Controllers/MetricsController.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
