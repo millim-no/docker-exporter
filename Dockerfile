@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0.420-alpine3.18 as build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:6.0.420-alpine3.18 as build
 
 COPY src /src
 WORKDIR /src
