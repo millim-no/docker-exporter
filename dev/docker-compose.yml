@@ -1,7 +1,7 @@
 services:
   devcontainer:
     container_name: exporter
-    image: mcr.microsoft.com/dotnet/sdk:7.0-alpine3.18
+    image: mcr.microsoft.com/dotnet/sdk:6.0.420-alpine3.18
     entrypoint: /bin/sh /run.sh
     working_dir: /app
     volumes:
