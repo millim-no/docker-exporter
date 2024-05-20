@@ -333,3 +333,49 @@ module Docker =
 
     type Containers = JsonProvider<containersSample>
     type Container = JsonProvider<containerSample>
+
+    /// To calculate the values shown by the stats command of the docker cli tool the following formulas can be used:
+    /// 
+    /// - used_memory = memory_stats.usage - memory_stats.stats.cache
+    /// - available_memory = memory_stats.limit
+    /// - Memory usage % = (used_memory / available_memory) * 100.0
+    /// - cpu_delta = cpu_stats.cpu_usage.total_usage - precpu_stats.cpu_usage.total_usage
+    /// - system_cpu_delta = cpu_stats.system_cpu_usage - precpu_stats.system_cpu_usage
+    /// - number_cpus = lenght(cpu_stats.cpu_usage.percpu_usage) or cpu_stats.online_cpus
+    /// - CPU usage % = (cpu_delta / system_cpu_delta) * number_cpus * 100.0
+    /// 
+    /// As per documentation:
+    /// https://docs.docker.com/engine/api/v1.41/#tag/Container/operation/ContainerStats
+    let exportContainer(container: Container.Root) =
+        let cpu_usage =
+            ((container.CpuStats.CpuUsage.TotalUsage - container.PrecpuStats.CpuUsage.TotalUsage) |> float)
+            /
+            ((container.CpuStats.SystemCpuUsage - container.PrecpuStats.SystemCpuUsage) |> float)
+            * (container.CpuStats.OnlineCpus |> float)
+        let cpu = cpu_usage * 100.0
+        let memory = container.MemoryStats.Usage
+        sprintf """
+# HELP cpu_percentage CPU usage, Unix format.
+# UNIT percent
+# TYPE cpu_percentage gauge
+cpu_percentage{name="%s"} %f
+# HELP cpu_usage CPU usage, Unix format.
+# TYPE cpu_usage gauge
+cpu_usage{name="%s"} %f
+# HELP cpu_clock CPU clock for this container.
+# TYPE cpu_clock counter
+cpu_clock{name="%s"} %i
+# HELP cpu_host_clock Host's CPU clock.
+# TYPE cpu_host_clock counter
+cpu_host_clock{name="%s"} %i
+# HELP cpu_clock_total CPU clock for this container.
+# TYPE cpu_clock_total counter
+cpu_clock_total{name="%s"} %i
+# HELP cpu_host_clock_total Host's CPU clock.
+# TYPE cpu_host_clock_total counter
+cpu_host_clock_total{name="%s"} %i
+
+# HELP memory Memory usage, in bytes.
+# TYPE memory gauge
+memory{name="%s"} %i
+        """ container.Name cpu container.Name cpu_usage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name memory
