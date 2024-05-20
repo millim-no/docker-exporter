@@ -347,14 +347,8 @@ module Docker =
     /// As per documentation:
     /// https://docs.docker.com/engine/api/v1.41/#tag/Container/operation/ContainerStats
     let exportContainer(container: Container.Root) =
-        let cpu_usage =
-            ((container.CpuStats.CpuUsage.TotalUsage - container.PrecpuStats.CpuUsage.TotalUsage) |> float)
-            /
-            ((container.CpuStats.SystemCpuUsage - container.PrecpuStats.SystemCpuUsage) |> float)
-            * (container.CpuStats.OnlineCpus |> float)
-        let cpu = cpu_usage * 100.0
-        let memory = container.MemoryStats.Usage
-        sprintf """
+
+        let cpu_template = """
 # HELP cpu_percentage CPU usage, Unix format.
 # UNIT percent
 # TYPE cpu_percentage gauge
@@ -374,8 +368,26 @@ cpu_clock_total{name="%s"} %i
 # HELP cpu_host_clock_total Host's CPU clock.
 # TYPE cpu_host_clock_total counter
 cpu_host_clock_total{name="%s"} %i
+        """ 
+        
+        let total_usage = container.CpuStats.CpuUsage.TotalUsage
+        let pre_total_usage = container.PrecpuStats.CpuUsage.TotalUsage
+        let system_usage = container.CpuStats.SystemCpuUsage
+        let pre_system_usage = container.PrecpuStats.SystemCpuUsage
+        let cpu_usage =
+            ((total_usage - pre_total_usage) |> float) /
+            ((system_usage - pre_system_usage) |> float)
+            * (container.CpuStats.OnlineCpus |> float)
+        let cpu = cpu_usage * 100.0
+        
+        let cpu_string = sprintf (Printf.StringFormat<_> cpu_template) container.Name cpu container.Name cpu_usage container.Name total_usage container.Name system_usage container.Name total_usage container.Name system_usage
 
-# HELP memory Memory usage, in bytes.
+
+        let memory_template = """# HELP memory Memory usage, in bytes.
 # TYPE memory gauge
 memory{name="%s"} %i
-        """ container.Name cpu container.Name cpu_usage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name memory
+        """
+        let memory = container.MemoryStats.JsonValue.TryGetProperty("Usage")
+        let memory_string = if memory.IsSome then sprintf (Printf.StringFormat<_> memory_template) container.Name memory else ""
+
+        cpu_string + memory_string
