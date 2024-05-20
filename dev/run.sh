@@ -1,1 +1,1 @@
-dotnet restore && dotnet watch run
+dotnet watch run
