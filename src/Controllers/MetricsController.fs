@@ -50,11 +50,17 @@ cpu_clock{name="%s"} %i
 # HELP cpu_host_clock Host's CPU clock.
 # TYPE cpu_host_clock counter
 cpu_host_clock{name="%s"} %i
+# HELP cpu_clock_total CPU clock for this container.
+# TYPE cpu_clock_total counter
+cpu_clock_total{name="%s"} %i
+# HELP cpu_host_clock_total Host's CPU clock.
+# TYPE cpu_host_clock_total counter
+cpu_host_clock_total{name="%s"} %i
 
 # HELP memory Memory usage, in bytes.
 # TYPE memory gauge
 memory{name="%s"} %i
-        """ container.Name cpu container.Name cpu_usage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name memory
+        """ container.Name cpu container.Name cpu_usage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name container.CpuStats.CpuUsage.TotalUsage container.Name container.CpuStats.SystemCpuUsage container.Name memory
 
     [<HttpGet>]
     member this.Get() =
