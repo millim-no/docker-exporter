@@ -385,12 +385,16 @@ cpu_host_clock_total{name="%s"} %i
         let cpu_usage_string = sprintf cpu_usage_template container.Name cpu_percentage container.Name cpu_usage
         let cpu_clock_string = sprintf cpu_clock_template container.Name total_usage container.Name system_usage container.Name total_usage container.Name system_usage
 
-
-        let memory_template = """# HELP memory Memory usage, in bytes.
+        let memory_template:Printf.StringFormat<_> = """# HELP memory Memory usage, in bytes.
 # TYPE memory gauge
 memory{name="%s"} %i
         """
-        let memory = container.MemoryStats.JsonValue.TryGetProperty("Usage")
-        let memory_string = if memory.IsSome then sprintf (Printf.StringFormat<_> memory_template) container.Name memory else ""
+        let memory: int =
+            container.MemoryStats.JsonValue.TryGetProperty("usage")
+            |> (fun memory ->
+                match memory with
+                | Some(memory) -> memory.AsInteger()
+                | None -> -1)
+        let memory_string = sprintf (memory_template) container.Name memory
 
         cpu_usage_string + cpu_clock_string + memory_string
