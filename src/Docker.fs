@@ -378,9 +378,9 @@ cpu_host_clock_total{name="%s"} %i
             ((total_usage - pre_total_usage) |> float) /
             ((system_usage - pre_system_usage) |> float)
             * (container.CpuStats.OnlineCpus |> float)
-        let cpu = cpu_usage * 100.0
+        let cpu_percentage = cpu_usage * 100.0
         
-        let cpu_string = sprintf (Printf.StringFormat<_> cpu_template) container.Name cpu container.Name cpu_usage container.Name total_usage container.Name system_usage container.Name total_usage container.Name system_usage
+        let cpu_string = sprintf (Printf.StringFormat<_> cpu_template) container.Name cpu_percentage container.Name cpu_usage container.Name total_usage container.Name system_usage container.Name total_usage container.Name system_usage
 
 
         let memory_template = """# HELP memory Memory usage, in bytes.
