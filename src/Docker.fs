@@ -348,7 +348,7 @@ module Docker =
     /// https://docs.docker.com/engine/api/v1.41/#tag/Container/operation/ContainerStats
     let exportContainer(container: Container.Root) =
 
-        let cpu_template = """
+        let cpu_usage_template:Printf.StringFormat<_> = """
 # HELP cpu_percentage CPU usage, Unix format.
 # UNIT percent
 # TYPE cpu_percentage gauge
@@ -356,6 +356,8 @@ cpu_percentage{name="%s"} %f
 # HELP cpu_usage CPU usage, Unix format.
 # TYPE cpu_usage gauge
 cpu_usage{name="%s"} %f
+"""
+        let cpu_clock_template:Printf.StringFormat<_> = """
 # HELP cpu_clock CPU clock for this container.
 # TYPE cpu_clock counter
 cpu_clock{name="%s"} %i
@@ -380,7 +382,8 @@ cpu_host_clock_total{name="%s"} %i
             * (container.CpuStats.OnlineCpus |> float)
         let cpu_percentage = cpu_usage * 100.0
         
-        let cpu_string = sprintf (Printf.StringFormat<_> cpu_template) container.Name cpu_percentage container.Name cpu_usage container.Name total_usage container.Name system_usage container.Name total_usage container.Name system_usage
+        let cpu_usage_string = sprintf cpu_usage_template container.Name cpu_percentage container.Name cpu_usage
+        let cpu_clock_string = sprintf cpu_clock_template container.Name total_usage container.Name system_usage container.Name total_usage container.Name system_usage
 
 
         let memory_template = """# HELP memory Memory usage, in bytes.
@@ -390,4 +393,4 @@ memory{name="%s"} %i
         let memory = container.MemoryStats.JsonValue.TryGetProperty("Usage")
         let memory_string = if memory.IsSome then sprintf (Printf.StringFormat<_> memory_template) container.Name memory else ""
 
-        cpu_string + memory_string
+        cpu_usage_string + cpu_clock_string + memory_string
