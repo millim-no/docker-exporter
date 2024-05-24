@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.0.3 - Unreleased
 
+### Changed
+- Report missing memory stats as "-1"
+
 ### Fixed
 - CPU clock counter value name ends with "_total" to adhere to Prometheus
   exporter specification.
+- Missing memory stats do not cause the exporter to fail.
 
 ## 0.0.2 - 2024-05-18
 - Initial public release
