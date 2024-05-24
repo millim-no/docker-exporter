@@ -4,6 +4,7 @@
     <RootNamespace>docker_exporter</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DockerSamples.fs" />
     <Compile Include="Docker.fs" />
     <Compile Include="SocketHttpClient.fs" />
     <Compile Include="WeatherForecast.fs" />
