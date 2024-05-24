@@ -16,14 +16,12 @@ type ConnectCallbackDelegate = delegate of SocketsHttpConnectionContext * Thread
 type MetricsController (logger : ILogger<MetricsController>) =
     inherit ControllerBase()
 
+    member this.client:HttpClient = socketHttpClient ("/var/run/docker.sock")
+
     [<HttpGet>]
     member this.Get() =
-        let socketPath = "/var/run/docker.sock"
-
-        let httpClient = socketHttpClient socketPath
-
         let ids =
-            httpClient.GetStringAsync "http://v1.41/containers/json"
+            this.client.GetStringAsync "http://v1.41/containers/json"
             |> Async.AwaitTask
             |> Async.RunSynchronously
             |> Containers.Parse
@@ -34,7 +32,7 @@ type MetricsController (logger : ILogger<MetricsController>) =
             ids
             |> Array.map (sprintf "http://v1.41/containers/%s/stats?stream=false")
             |> Array.map (fun url ->
-                httpClient.GetStringAsync url
+                this.client.GetStringAsync url
                 |> Async.AwaitTask
             )
             |> Async.Parallel
