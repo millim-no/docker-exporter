@@ -23,4 +23,4 @@ module Http =
         let socketHandler = new SocketsHttpHandler()
         socketHandler.ConnectCallback <- new Func<SocketsHttpConnectionContext,Threading.CancellationToken,ValueTask<IO.Stream>>(unixConnectCallback)
 
-        new HttpClient(socketHandler)
+        new HttpClient(socketHandler, false)
